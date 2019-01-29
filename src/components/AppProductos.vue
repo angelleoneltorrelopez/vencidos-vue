@@ -122,7 +122,6 @@
 <script>
 
 import axios from 'axios'
-import VueAxios from 'vue-axios'
   export default {
     name: 'App',
     data: () => ({
