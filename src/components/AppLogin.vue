@@ -7,16 +7,10 @@
             <v-card class="elevation-12">
               <v-toolbar dark color="primary">
                 <v-toolbar-title>Inicio de Session</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-tooltip right>
-                  <v-btn slot="activator" icon large href="https://codepen.io/johnjleider/pen/wyYVVj" target="_blank">
-                    <v-icon large>mdi-codepen</v-icon>
-                  </v-btn>
-                  <span>Codepen</span>
-                </v-tooltip>
+
               </v-toolbar>
               <v-card-text>
-                <v-form>
+                <v-form >
                   <v-text-field v-model="usuario"
                   :rules="usuarioRules" prepend-icon="person" name="login" label="Usuario" type="text" required autofocus></v-text-field>
                   <v-text-field id="password" v-model="password"
@@ -25,7 +19,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary">Login</v-btn>
+                <v-btn type="submit" @click="login" color="primary">Login</v-btn>
               </v-card-actions>
             </v-card>
           </v-flex>
@@ -37,6 +31,7 @@
 
 
 <script>
+import firebase from 'firebase'
   export default {
     data: () => ({
       drawer: null,
@@ -50,9 +45,10 @@
       ]
     }),
     methods:{
-      submit(){
-        console.log(`Email es ${this.email} y password ${this.password}`)
-      }
+      login(){
+      firebase.auth().signInWithEmailAndPassword(this.usuario, this.password)
+      .then((User)=> this.$router.replace('/ingreso'))
+    }
     }
   }
 </script>

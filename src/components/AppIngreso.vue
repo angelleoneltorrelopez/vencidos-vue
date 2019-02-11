@@ -4,6 +4,20 @@
       <v-container grid-list-xl text-xs-center>
       <v-layout row justify-center>
 
+        <v-snackbar
+        v-model="snackbar"
+        :color="color"
+        top right
+        :timeout="timeout"
+        multi-line
+      >
+      <b>  {{ msg }}</b>
+        <v-btn dark flat  @click="snackbar = false"
+        >
+      <b>  Close</b>
+        </v-btn>
+      </v-snackbar>
+
         <v-dialog v-model="modal" persistent max-width="290">
           <v-card>
             <v-card-title class="headline">Confirmacion</v-card-title>
@@ -16,7 +30,6 @@
         </v-dialog>
 
       <h1>Ingreso</h1>
-      <v-divider class="mx-2" inset vertical></v-divider>
       <v-spacer></v-spacer>
 
       <v-text-field v-model="search" append-icon="search"
@@ -139,20 +152,20 @@
       :headers="headers"
       :items="ingreso"
       :search="search"
-      class="elevation-1"
+      class="elevation-1 "
       :rows-per-page-items="rowsPerPageItems"
       :pagination.sync="pagination"
     >
 
       <template slot="items" slot-scope="props">
-        <td class="text-xs-left">{{ props.item.Id }}</td>
+        <td class="text-xs-left ">{{ props.item.Id }}</td>
         <td class="text-xs-left">{{ props.item.nombre_productos }}</td>
         <td class="text-xs-left">{{ props.item.nombrecasa }}</td>
         <td class="text-xs-left">{{ props.item.nombreprov }}</td>
         <td class="text-xs-left">{{ props.item.Politica }}</td>
         <td class="text-xs-left">{{ props.item.Caducidad }}</td>
         <td class="text-xs-left">{{ props.item.Lote }}</td>
-        <td class="text-xs-left">{{ props.item.Estado }}</td>
+        <td class="text-xs-left"><v-chip :class="`a${props.item.Estado}`" >{{ props.item.Estado }}</v-chip></td>
         <td class="justify-center layout px-0">
           <v-icon small
             class="mr-2"
@@ -178,11 +191,13 @@
 </template>
 
 <script>
-
 import axios from 'axios'
   export default {
     name: 'App',
     data: () => ({
+      snackbar: false,
+      color: '',
+      timeout: 6000,
       polits: [
           { pol: 'No Devolucion', num: '-1' },
           { pol: 'En el Mes', num: '0' },
@@ -217,15 +232,15 @@ import axios from 'axios'
       msg: "",
       search: '',
       headers: [
-                {text: 'Id', value: 'Id', width: "20%"},
-                {text: 'Productos', align: 'left', value: 'nombre_productos'},
-                {text: 'Casa', align: 'left', value: 'nombrecasa'},
-                {text: 'Proveedor', align: 'left', value: 'nombreprov'},
-                {text: 'Politica', align: 'left', value: 'Politica'},
-                {text: 'Caducidad', align: 'left', value: 'Caducidad'},
-                {text: 'Lote', align: 'left', value: 'Lote'},
-                {text: 'Estado', align: 'left', value: 'Estado'},
-                {text: 'Actions', value: 'name', sortable: false, width: "20%"}
+                {text: "Id", value: 'Id'},
+                {text: 'Productos', align: 'center', value: 'nombre_productos'},
+                {text: 'Casa', align: 'center', value: 'nombrecasa'},
+                {text: 'Proveedor', align: 'center', value: 'nombreprov'},
+                {text: 'Politica', align: 'center', value: 'Politica'},
+                {text: 'Caducidad', align: 'center', value: 'Caducidad'},
+                {text: 'Lote', align: 'center', value: 'Lote'},
+                {text: 'Estado', align: 'center', value: 'Estado'},
+                {text: 'Actions', value: 'name', sortable: false}
               ],
       editedIndex: -1,
       editedItem: {
@@ -276,7 +291,7 @@ import axios from 'axios'
         this.casas = casasDB;
       }*/
     //  console.log(JSON.stringify(ap));
-    console.log(this.$store.state.ingreso);
+
       this.getAllIngresos(),
       this.getAllProductos(),
       this.getAllCasas(),
@@ -288,42 +303,47 @@ import axios from 'axios'
     methods: {
 
       getAllIngresos: function(){
-              		axios.get("http://localhost:3000/ingresos/")
-                  .then(response => (
-                  this.ingreso = response.data,
+                  axios.get("http://localhost:3000/ingresos/")
+                  .then(response => (this.ingreso = response.data,
                   localStorage.setItem('Ingresos', JSON.stringify(this.ingreso))
-                  ));
-              		},
+                ))
+                .catch(e => {
+                this.msg = 'Sin coneccion al servidor'
+                this.color = 'error'
+                this.snackbar = true
+                this.ingreso = JSON.parse( localStorage.getItem('Ingresos'))})
+                },
 
       getAllProductos: function(){
-              		axios.get("http://localhost:3000/productos/")
-                  .then(response => (this.productos = response.data))
-                  .catch(e => {
-              //    this.msg = 'Sin coneccion al servidor'
-              //    this.color = 'error'
-              //    this.snackbar = true
-            });
-              		},
+                  axios.get("http://localhost:3000/productos/")
+                  .then(response => (this.productos = response.data,
+                  localStorage.setItem('Productos', JSON.stringify(this.productos))
+                ))
+                .catch(e => {
+                this.productos = JSON.parse( localStorage.getItem('Productos'))})
+                  },
+
       getAllCasas: function(){
-              		axios.get("http://localhost:3000/casas/")
-                  .then(response => (
-                  this.casas = response.data,
+                  axios.get("http://localhost:3000/casas/")
+                  .then(response => (this.casas = response.data,
                   localStorage.setItem('Casas', JSON.stringify(this.casas))
-                  ));
-              		},
+                ))
+                .catch(e => {
+                this.casas = JSON.parse( localStorage.getItem('Casas'))})
+                  },
 
       getAllProveedores: function(){
-              		axios.get("http://localhost:3000/proveedores/")
-                  .then(response => (
-                  this.proveedores = response.data,
+                  axios.get("http://localhost:3000/proveedores/")
+                  .then(response => (this.proveedores = response.data,
                   localStorage.setItem('Proveedores', JSON.stringify(this.proveedores))
-                  ));
-              		},
+                ))
+                .catch(e => {
+                this.proveedores = JSON.parse( localStorage.getItem('Proveedores'))})
+              },
 
       searchIngreso: function(){
               		axios.get("http://localhost:3000/ingresos/"+this.search)
                   .then(response => (this.ingreso = response.data,
-                  localStorage.setItem('Ingresos', JSON.stringify(this.ingreso)),
                   this.search = ''
                   ));
               		},
@@ -348,12 +368,18 @@ import axios from 'axios'
                   if(response.data.success == 'true')
                   { this.ingreso.splice(index, 1)
                     this.msg = item.nombre_productos + ' ' + response.data.data.msg
-                    this.modal = true
+                    this.color = 'success'
+                    this.snackbar = true
                   }else{
                     this.msg = item.nombre_productos + ' ' + response.data.data.msg
-                    this.modal = true
+                    this.color = 'error'
+                    this.snackbar = true
                   }
-              });
+              })
+              .catch(e => {
+              this.msg = 'Sin coneccion al servidor'
+              this.color = 'error'
+              this.snackbar = true})
             }//ebd if
           },//end deleteItem
 
@@ -379,11 +405,17 @@ import axios from 'axios'
          {
            this.msg = this.editedItem.nombre_productos + ' ' + response.data.msg
            Object.assign(this.ingreso[this.editedIndex], this.editedItem)
-           this.modal = true
+           this.color = 'success'
+           this.snackbar = true
          }
 
           })
-        .catch(e => {})
+          .catch(e => {
+
+            this.msg = 'Sin coneccion al servidor'
+          this.color = 'error'
+          this.snackbar = true
+        })
 
 
         } else {
@@ -395,10 +427,14 @@ import axios from 'axios'
             this.editedItem.Id = response.data.data.insertId
             this.msg = this.editedItem.nombre_productos + ' ' + response.data.msg
             this.ingreso.push(this.editedItem)
-            this.modal = true
+            this.color = 'success'
+            this.snackbar = true
           }
           })
-        .catch(e => {})
+          .catch(e => {
+          this.msg = 'Sin coneccion al servidor'
+          this.color = 'error'
+          this.snackbar = true})
 
         }
         this.close()
@@ -407,3 +443,15 @@ import axios from 'axios'
    }//end methods
   }
 </script>
+<style>
+  .theme--light.v-chip.a0{
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+  }
+  .theme--light.v-chip.a1{
+    background-color: #F44336;
+    color: white;
+    font-weight: bold;
+  }
+</style>

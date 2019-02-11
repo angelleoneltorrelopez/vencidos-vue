@@ -13,7 +13,7 @@ import AppFooter from './components/AppFooter'
 
 export default {
   name: 'App',
-  components:{AppFooter,AppToolbar},
+  components:{AppFooter,AppToolbar}
 
 }
 </script>

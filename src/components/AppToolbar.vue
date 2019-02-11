@@ -1,6 +1,6 @@
 <template>
   <nav>
-  <v-toolbar color="deep-purple" dark>
+  <v-toolbar color="indigo" dark>
     <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
     <v-toolbar-title>
       <router-link to="/">
@@ -8,9 +8,9 @@
       </router-link>
     </v-toolbar-title>
     <v-spacer></v-spacer>
-    <div class="hidden-sm-and-down">
+    <div >
       <router-link to="/ingreso">
-        <v-btn flat>Ingreso</v-btn>
+        <v-btn flat >Ingreso</v-btn>
       </router-link>
       <router-link to="/productos">
         <v-btn flat>Productos</v-btn>
@@ -24,11 +24,15 @@
       <router-link to="/login">
         <v-btn flat>Login</v-btn>
       </router-link>
+
+      <v-btn icon  @click="logout()">
+          <v-icon >logout</v-icon>
+        </v-btn>
     </div>
   </v-toolbar>
 
 
-  <div class="hidden-sm-and-up">
+  <div >
   <v-navigation-drawer
     v-model="drawer"
     absolute
@@ -66,6 +70,7 @@
 </template>
 
 <script>
+import firebase from 'firebase'
   export default {
     data () {
       return {
@@ -79,6 +84,15 @@
           { title: 'Login', icon: 'dashboard', route: '/login' },
         ]
       }
+    },
+    methods: {
+      logout(){
+        firebase.auth().signOut().then(()=> this.$router.replace('/login')).catch(function(error) {
+    alert('error')
+  });
+
     }
+    }
+
   }
 </script>

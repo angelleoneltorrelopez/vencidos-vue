@@ -171,12 +171,13 @@ import VueAxios from 'vue-axios'
     methods: {
 
       getAllProveedores: function(){
-              		axios.get("http://localhost:3000/proveedores/")
-                  .then(response => (
-                  this.proveedores = response.data,
+                  axios.get("http://localhost:3000/proveedores/")
+                  .then(response => (this.proveedores = response.data,
                   localStorage.setItem('Proveedores', JSON.stringify(this.proveedores))
-                  ));
-              		},
+                ))
+                .catch(e => {
+                this.proveedores = JSON.parse( localStorage.getItem('Proveedores'))})
+              },
 
       searchProveedores: function(){
               		axios.get("http://localhost:3000/proveedores/"+this.search)

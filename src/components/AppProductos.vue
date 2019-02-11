@@ -120,7 +120,6 @@
 </template>
 
 <script>
-
 import axios from 'axios'
   export default {
     name: 'App',
@@ -176,13 +175,7 @@ import axios from 'axios'
       }
     },
 
-    created () {/*
-      let productosDB = JSON.parse(localStorage.getItem('Productos'));
-      if(productosDB === null){
-        this.productos = [];
-      }else{
-        this.productos = productosDB;
-      }*/
+    created () {
       this.getAllProductos()
     },
 
@@ -190,11 +183,14 @@ import axios from 'axios'
 
       getAllProductos: function(){
   		axios.get("http://localhost:3000/productos/")
-      .then(response => (this.productos = response.data))
+      .then(response => (this.productos = response.data,
+      localStorage.setItem('Productos', JSON.stringify(this.productos))
+    ))
       .catch(e => {
       this.msg = 'Sin coneccion al servidor'
       this.color = 'error'
-      this.snackbar = true});
+      this.snackbar = true
+      this.productos = JSON.parse(localStorage.getItem('Productos'))});
   		},
 
       searchProductos: function(){
@@ -266,7 +262,11 @@ import axios from 'axios'
           })
         .catch(e => {this.msg = 'Sin coneccion al servidor'
         this.color = 'error'
-        this.snackbar = true})
+        this.snackbar = true
+        var local = localStorage.getItem(JSON.stringify('Update'))
+        local.push(this.editedItem)
+        localStorage.setItem('Update', JSON.stringify(local))
+      })
 
 
         } else {
@@ -289,7 +289,18 @@ import axios from 'axios'
         .catch(e => {
         this.msg = 'Sin coneccion al servidor'
         this.color = 'error'
-        this.snackbar = true})
+        this.snackbar = true
+
+        if(localStorage.getItem('Save')){
+        var save = localStorage.getItem('Save')
+        save += JSON.stringify(this.editedItem)
+        console.log(save);
+        localStorage.setItem('Save', save)
+        } else {
+            localStorage.setItem('Save', JSON.stringify(this.editedItem))
+        }
+
+    })
 
         }
         this.close()
