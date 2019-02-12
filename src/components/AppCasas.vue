@@ -4,6 +4,20 @@
       <v-container grid-list-xl text-xs-center>
     <v-layout row justify-center>
 
+      <v-snackbar
+      v-model="snackbar"
+      :color="color"
+      top right
+      :timeout="timeout"
+      multi-line
+    >
+    <b>  {{ msg }}</b>
+      <v-btn dark flat  @click="snackbar = false"
+      >
+    <b>Close</b>
+      </v-btn>
+    </v-snackbar>
+
       <v-dialog v-model="modal" persistent max-width="290">
       <v-card>
         <v-card-title class="headline">Confirmacion</v-card-title>
@@ -110,10 +124,12 @@
 <script>
 
 import axios from 'axios'
-import VueAxios from 'vue-axios'
   export default {
     name: 'App',
     data: () => ({
+      snackbar: false,
+      color: '',
+      timeout: 6000,
       rules: {required: value => !!value || 'Requerido.',
               min: a => a.length >= 2 || 'Caracteres minimo es de 2',
               max: v => v.length <= 40 || 'Caracteres maximo es de 40'
@@ -125,6 +141,7 @@ import VueAxios from 'vue-axios'
          }
        },
       casas: [],
+      deletecasas: [],
       rowsPerPageItems: [5, 10, 15, 20],
       pagination: {
                   ascending: true,
@@ -193,12 +210,16 @@ import VueAxios from 'vue-axios'
     methods: {
 
       getAllCasas: function(){
-              		axios.get("http://localhost:3000/casas/")
-                  .then(response => (
-                  this.casas = response.data,
+                  axios.get("http://localhost:3000/casas/")
+                  .then(response => (this.casas = response.data,
                   localStorage.setItem('Casas', JSON.stringify(this.casas))
-                  ));
-              		},
+                ))
+                .catch(e => {
+                  this.msg = 'Sin coneccion al servidor'
+                  this.color = 'error'
+                  this.snackbar = true
+                this.casas = JSON.parse( localStorage.getItem('Casas'))})
+                  },
 
       searchCasas: function(){
               		axios.get("http://localhost:3000/casas/"+this.search)
@@ -224,12 +245,25 @@ import VueAxios from 'vue-axios'
                   if(response.data.success == 'true')
                   {
                     this.msg = item.nombrecasa + ' ' + response.data.data.msg
-                    this.modal = true
-                  }else{
-                    this.msg = item.nombrecasa + ' ' + response.data.data.msg
-                    this.modal = true
-                  }
-              });
+                    this.color = 'success'
+                    this.snackbar = true
+                    localStorage.setItem('Casas', JSON.stringify(this.casas))
+                    }
+                  })
+              .catch(e => {
+                this.msg = item.nombrecasa + ' Eliminar al conectar con el servidor'
+                this.color = 'success'
+                this.snackbar = true
+                if(localStorage.getItem('DeleteCasas')){
+                  var savecasa = JSON.stringify(localStorage.getItem('DeleteCasas'))
+                  alert(savecasa)
+                  savecasa += JSON.stringify(item.idcasa)
+
+                  localStorage.setItem('DeleteCasas',savecasa)
+              }else{
+                localStorage.setItem('DeleteCasas', JSON.stringify(item.idcasa))
+              }
+              })
             }//ebd if
           },//end deleteItem
 
@@ -253,7 +287,8 @@ import VueAxios from 'vue-axios'
          {
            this.msg = this.editedItem.nombrecasa + ' ' + response.data.msg
            Object.assign(this.casas[this.editedIndex], this.editedItem)
-           this.modal = true
+           this.color = 'success'
+           this.snackbar = true
          }
 
           })
@@ -269,7 +304,8 @@ import VueAxios from 'vue-axios'
             this.editedItem.idcasa = response.data.data.insertId
             this.msg = this.editedItem.nombrecasa + ' ' + response.data.msg
             this.casas.push(this.editedItem)
-            this.modal = true
+            this.color = 'success'
+            this.snackbar = true
           }
           })
         .catch(e => {})

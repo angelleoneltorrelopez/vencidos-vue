@@ -14,7 +14,7 @@
       <b>  {{ msg }}</b>
         <v-btn dark flat  @click="snackbar = false"
         >
-      <b>  Close</b>
+      <b>Close</b>
         </v-btn>
       </v-snackbar>
 

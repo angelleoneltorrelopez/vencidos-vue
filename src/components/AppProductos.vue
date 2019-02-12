@@ -294,7 +294,6 @@ import axios from 'axios'
         if(localStorage.getItem('Save')){
         var save = localStorage.getItem('Save')
         save += JSON.stringify(this.editedItem)
-        console.log(save);
         localStorage.setItem('Save', save)
         } else {
             localStorage.setItem('Save', JSON.stringify(this.editedItem))
